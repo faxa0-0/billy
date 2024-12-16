@@ -1,13 +1,44 @@
 package sqlite
 
 import (
-	"github.com/faxa0-0/billy/plan_service/internal/repository"
+	"database/sql"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
-type SQLiteUserRepository struct {
-	//db *sql.DB
+type SQLiteRepository struct {
+	db *sql.DB
 }
 
-func NewSQLiteUserRepository(path string) (repository.Repository, error) {
-	return &SQLiteUserRepository{}, nil
+func NewSQLiteRepository(path string) (*SQLiteRepository, error) {
+	db, err := sql.Open("sqlite3", path)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS plans (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			title TEXT NOT NULL,
+			series TEXT,
+			corp INTEGER,
+			subscription_fee INTEGER,
+			conn_type TEXT,
+			speed TEXT,
+			tasix_speed TEXT,
+			limit_mb INTEGER,
+			additional_info TEXT,
+			active BOOLEAN,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)
+	`)
+	if err != nil {
+		return nil, err
+	}
+
+	return &SQLiteRepository{db: db}, nil
+}
+func (repo *SQLiteRepository) Close() error {
+	return repo.db.Close()
 }
