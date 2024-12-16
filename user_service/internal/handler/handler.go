@@ -9,22 +9,23 @@ import (
 )
 
 type PlanHandler struct {
-	taskService *service.PlanService
+	planService *service.PlanService
 }
 
 func NewPlanHandler(service *service.PlanService) *PlanHandler {
-	return &PlanHandler{taskService: service}
+	return &PlanHandler{planService: service}
 }
 func (handler *PlanHandler) PlansHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		w.Write([]byte("GET plans"))
+		handler.GetPlans(w, r)
 	case http.MethodPost:
-		w.Write([]byte("POST plans"))
+		handler.CreatePlan(w, r)
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
 }
+
 func (handler *PlanHandler) SinglePlanHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path[len("/plans/"):]
 

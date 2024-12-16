@@ -24,9 +24,9 @@ func main() {
 
 	planService := service.NewPlanService(repo)
 
-	planPandler := handler.NewPlanHandler(planService)
+	planHandler := handler.NewPlanHandler(planService)
 
-	api := api.NewApi(*planPandler, cfg.Address)
+	api := api.NewApi(*planHandler, cfg.Address)
 
 	api.Run()
 }
