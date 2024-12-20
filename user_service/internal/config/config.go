@@ -15,7 +15,6 @@ func LoadEnv() (*models.Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error loading .env file from /configs/.env: %v", err)
 	}
-	// Load environment variables into the config struct
 	err = cleanenv.ReadEnv(&cfg)
 	if err != nil {
 		return nil, fmt.Errorf("error reading environment variables: %v", err)
@@ -27,7 +26,6 @@ func LoadEnv() (*models.Config, error) {
 func LoadYAML() (*models.Config, error) {
 	var cfg models.Config
 
-	// Load configuration from the YAML file
 	err := cleanenv.ReadConfig("./configs/config.yaml", &cfg)
 	if err != nil {
 		return nil, fmt.Errorf("error reading YAML config file ./configs/config.yaml: %v", err)

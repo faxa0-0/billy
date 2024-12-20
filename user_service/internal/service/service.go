@@ -13,8 +13,13 @@ func NewUserService(repo repository.UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 
-func (s *UserService) RegisterUser(user *models.User) error {
-	return s.repo.Create(user)
+func (s *UserService) CreateUser(user *models.User) (int, error) {
+	id, err := s.repo.Create(user)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+
 }
 
 func (s *UserService) GetUser(id string) (*models.User, error) {

@@ -35,6 +35,31 @@ func main() {
 	}
 
 	log.Println("Successfully connected to database and pinged it")
+	
+	// Migrate
+	query := `CREATE TABLE IF NOT EXISTS users_db (
+		id SERIAL PRIMARY KEY,
+		name VARCHAR(255) NOT NULL,
+		login VARCHAR(255) UNIQUE NOT NULL,
+		payment_acc VARCHAR(50) UNIQUE NOT NULL,
+		conn_type VARCHAR(50) CHECK (conn_type IN ('fttx', 'adsl', 'gpon')) NOT NULL,
+		balance BIGINT NOT NULL,
+		write_off_date TIMESTAMPTZ NOT NULL,
+		active BOOLEAN NOT NULL,
+		plan_title VARCHAR(255) NOT NULL,
+		plan_series VARCHAR(255) NOT NULL,
+		plan_subs_fee INT NOT NULL,
+		last_payment_sum BIGINT NOT NULL,
+		last_payment_date TIMESTAMPTZ NOT NULL,
+		created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+	);
+	`
+	_, err = db.Exec(query)
+	if err != nil {
+		log.Fatalf("cannot migrate %s", err)
+	}
+	log.Println("Successfully migrated")
 
 	repo := postgres.NewPostgresUserRepository(db)
 	service := service.NewUserService(repo)
