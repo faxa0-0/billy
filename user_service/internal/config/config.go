@@ -1,35 +1,37 @@
 package config
 
 import (
-	"os"
+	"fmt"
 
+	"github.com/faxa0-0/billy/user_service/internal/models"
+	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
-	"github.com/spf13/cast"
 )
 
-type Config struct {
-	DBPath string
+func LoadEnv() (*models.Config, error) {
+	var cfg models.Config
 
-	Address string
-}
-
-func LoadConfig() (*Config, error) {
-	err := godotenv.Load(".env")
+	err := godotenv.Load("./configs/.env")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error loading .env file from /configs/.env: %v", err)
+	}
+	// Load environment variables into the config struct
+	err = cleanenv.ReadEnv(&cfg)
+	if err != nil {
+		return nil, fmt.Errorf("error reading environment variables: %v", err)
 	}
 
-	config := &Config{}
-
-	config.Address = cast.ToString(getEnvValue("HTTP_SERVER_ADDRESS", "localhost:8881"))
-	config.DBPath = cast.ToString(getEnvValue("DB_PATH", "./db.db"))
-
-	return config, nil
+	return &cfg, nil
 }
-func getEnvValue(key string, defaultValue interface{}) interface{} {
-	val, exists := os.LookupEnv(key)
-	if exists {
-		return val
+
+func LoadYAML() (*models.Config, error) {
+	var cfg models.Config
+
+	// Load configuration from the YAML file
+	err := cleanenv.ReadConfig("./configs/config.yaml", &cfg)
+	if err != nil {
+		return nil, fmt.Errorf("error reading YAML config file ./configs/config.yaml: %v", err)
 	}
-	return defaultValue
+
+	return &cfg, nil
 }

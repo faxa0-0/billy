@@ -1,38 +1,34 @@
 package service
 
 import (
-	"fmt"
-
-	"github.com/faxa0-0/billy/plan_service/internal/models"
-	"github.com/faxa0-0/billy/plan_service/internal/repository"
+	"github.com/faxa0-0/billy/user_service/internal/models"
+	"github.com/faxa0-0/billy/user_service/internal/repository"
 )
 
-type PlanService struct {
-	repo repository.PlanRepository
+type UserService struct {
+	repo repository.UserRepository
 }
 
-func NewPlanService(repo repository.PlanRepository) *PlanService {
-	return &PlanService{repo: repo}
+func NewUserService(repo repository.UserRepository) *UserService {
+	return &UserService{repo: repo}
 }
 
-func (s *PlanService) CreatePlan(newPlan models.Plan) (*models.CreatedResponse, error) {
-	if newPlan.Title == "" {
-		return nil, fmt.Errorf("plan title is required")
-	}
-
-	createdPlan, err := s.repo.CreatePlan(newPlan)
-	if err != nil {
-		return nil, fmt.Errorf("error saving plan: %v", err)
-	}
-
-	return createdPlan, nil
+func (s *UserService) RegisterUser(user *models.User) error {
+	return s.repo.Create(user)
 }
 
-func (s *PlanService) GetPlans() ([]*models.Plan, error) {
-	plans, err := s.repo.GetPlans()
-	if err != nil {
-		return nil, fmt.Errorf("error finding plans: %v", err)
-	}
+func (s *UserService) GetUser(id string) (*models.User, error) {
+	return s.repo.FindByID(id)
+}
 
-	return plans, nil
+func (s *UserService) ListUsers() ([]models.User, error) {
+	return s.repo.FindAll()
+}
+
+func (s *UserService) UpdateUser(id string, user *models.User) error {
+	return s.repo.Update(id, user)
+}
+
+func (s *UserService) DeleteUser(id string) error {
+	return s.repo.Delete(id)
 }

@@ -1,53 +1,45 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
-	"regexp"
 
-	"github.com/faxa0-0/billy/plan_service/internal/service"
+	"github.com/faxa0-0/billy/user_service/internal/service"
+	"github.com/faxa0-0/billy/user_service/pkg/response"
 )
 
-type PlanHandler struct {
-	planService *service.PlanService
+type UserHandler struct {
+	service *service.UserService
 }
 
-func NewPlanHandler(service *service.PlanService) *PlanHandler {
-	return &PlanHandler{planService: service}
-}
-func (handler *PlanHandler) PlansHandler(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) HandleUserRequests(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case http.MethodGet:
-		handler.GetPlans(w, r)
-	case http.MethodPost:
-		handler.CreatePlan(w, r)
+	case "GET":
+		h.GetUser(w, r)
+	case "POST":
+		h.CreateUser(w, r)
+	case "PUT":
+		h.UpdateUser(w, r)
+	case "DELETE":
+		h.DeleteUser(w, r)
 	default:
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		response.ErrorResponse(w, "method Not Allowed", http.StatusMethodNotAllowed)
 	}
 }
 
-func (handler *PlanHandler) SinglePlanHandler(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Path[len("/plans/"):]
+func NewUserHandler(service *service.UserService) *UserHandler {
+	return &UserHandler{service: service}
+}
 
-	if id == "" {
-		http.Error(w, "id is required", http.StatusBadRequest)
+func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	user, err := h.service.GetUser(id)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
-	var re = regexp.MustCompile(`^[0-9]+$`)
 
-	if !re.MatchString(id) {
-		http.Error(w, "bad id", http.StatusBadRequest)
-		return
-	}
-
-	switch r.Method {
-	case http.MethodGet:
-		fmt.Fprintf(w, "GET plan with ID: %s", id)
-	case http.MethodPatch:
-		fmt.Fprintf(w, "PATCH plan with ID: %s", id)
-	case http.MethodDelete:
-		fmt.Fprintf(w, "DELETE plan with ID: %s", id)
-	default:
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-	}
+	response.SuccessResponse(w, user, "user found successfully")
 }
+func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {}
+func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {}
+func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {}

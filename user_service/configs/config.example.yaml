@@ -1,0 +1,11 @@
+server:
+  host: "localhost"
+  port: 8882
+
+database:
+  username: "postgres"
+  password: "root"
+  db_host: "localhost"
+  db_port: 5432
+  db_name: "dbname"
+  sslmode: "disable"
